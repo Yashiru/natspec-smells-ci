@@ -37738,11 +37738,6 @@ async function runNatspecSmells() {
                     if (data.toString().match(/.sol:/g)) {
                         findingsAmount += data.toString().match(/.sol:/g).length;
                     }
-                },
-                stderr: (data) => {
-                    if (data.toString().match(/.sol:/g)) {
-                        findingsAmount += data.toString().match(/.sol:/g).length;
-                    }
                 }
             }
         };
