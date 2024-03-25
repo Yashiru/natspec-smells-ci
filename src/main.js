@@ -22,7 +22,7 @@ async function run() {
             const sha = github.context.payload.pull_request.head.sha;
             const shaShort = sha.substr(0, 7);
             const commentHeaderPrefix = `### [Natspec smells](https://github.com/defi-wonderland/natspec-smells) of commit`;
-            let body = generateCommentBody(commentHeaderPrefix);
+            let body = generateCommentBody(commentHeaderPrefix, shaShort, sha, findingsAmount);
 
             updateComment ? await upsertComment(body, commentHeaderPrefix, octokit) : await createComment(body, octokit);
         } else if (!hasGithubToken) {
@@ -100,7 +100,7 @@ async function runNatspecSmells() {
     })
 }
 
-async function generateCommentBody(commentHeaderPrefix, shaShort, findingsAmount) {
+async function generateCommentBody(commentHeaderPrefix, shaShort, sha, findingsAmount) {
     if (findingsAmount > 0) {
         return `${commentHeaderPrefix} [<code>${shaShort}</code>](${github.context.payload.pull_request.number}/commits/${sha}) during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n> [!WARNING]  \n> Natspec smells has found **${findingsAmount} problems** in the code.`;
     }
