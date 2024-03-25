@@ -37731,21 +37731,24 @@ async function upsertComment(body, commentHeaderPrefix, octokit) {
 
 async function runNatspecSmells() {
     return new Promise(async (resolve, reject) => {
+        let findingsAmount = 0;
         const options = {
             listeners: {
                 stdout: (data) => {
-                    core.info("Natspec smells output length: "+data.toString().length);
-                    core.info("Natspec smells findings amount: "+data.toString().match(/.sol:/g).length);
-                    resolve(data.toString().match(/.sol:/g).length);
+                    if (data.toString().match(/.sol:/g)) {
+                        findingsAmount += data.toString().match(/.sol:/g).length;
+                    }
                 },
                 stderr: (data) => {
-                    core.setFailed(data.toString());
-                    reject(data.toString());
+                    if (data.toString().match(/.sol:/g)) {
+                        findingsAmount += data.toString().match(/.sol:/g).length;
+                    }
                 }
             }
         };
     
-        exec.exec('npx natspec-smells', [], options);
+        await exec.exec('npx natspec-smells', [], options);
+        resolve(findingsAmount);
     })
 }
 
