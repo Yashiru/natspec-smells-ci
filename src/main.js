@@ -96,16 +96,18 @@ async function runNatspecSmells() {
         };
     
         await exec.exec('npx natspec-smells', [], options);
+
+        core.info(`Total smells found: ${findingsAmount}`);
         resolve(findingsAmount);
     })
 }
 
-async function generateCommentBody(commentHeaderPrefix, shaShort, sha, findingsAmount) {
+function generateCommentBody(commentHeaderPrefix, shaShort, sha, findingsAmount) {
     if (findingsAmount > 0) {
         return `${commentHeaderPrefix} [<code>${shaShort}</code>](${github.context.payload.pull_request.number}/commits/${sha}) during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n> [!WARNING]  \n> Natspec smells has found **${findingsAmount} problems** in the code.`;
     }
     else{
-        return `${commentHeaderPrefix} [<code>${shaShort}</code>](${github.context.payload.pull_request.number}/commits/${sha}) during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n> [!TIP]  \n> Natspec smells has not found any problems in the code ✅.`;
+        return `${commentHeaderPrefix} [<code>${shaShort}</code>](${github.context.payload.pull_request.number}/commits/${sha}) during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n> [!TIP]  \n> Natspec smells has not found any problems in the code.`;
     }
 }
 
