@@ -82,9 +82,9 @@ async function runNatspecSmells() {
         let findingsAmount = 0;
         const options = {
             listeners: {
-                stdout: (data) => {
+                stderr: (data) => {
                     if (data.toString().match(/.sol:/g)) {
-                        findingsAmount += data.toString().match(/.sol:/g).length;
+                        findingsAmount ++;
                     }
                 }
             }
