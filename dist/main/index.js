@@ -37674,8 +37674,7 @@ async function run() {
             const sha = github.context.payload.pull_request.head.sha;
             const shaShort = sha.substr(0, 7);
             const commentHeaderPrefix = `### [Natspec smells](https://github.com/defi-wonderland/natspec-smells) of commit`;
-            let body = `${commentHeaderPrefix} [<code>${shaShort}</code>](${github.context.payload.pull_request.number}/commits/${sha}) during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n> [!WARNING]  \n> Natspec smells has found ${findingsAmount} problems in the code. 
-            `;
+            let body = generateCommentBody(commentHeaderPrefix);
 
             updateComment ? await upsertComment(body, commentHeaderPrefix, octokit) : await createComment(body, octokit);
         } else if (!hasGithubToken) {
@@ -37731,21 +37730,32 @@ async function upsertComment(body, commentHeaderPrefix, octokit) {
 }
 
 async function runNatspecSmells() {
-    let findingsAmount = 0;
-    const options = {
-        listeners: {
-            stdout: (data) => {
-                findingsAmount = data.toString().match(/.sol:/g).length;
-            },
-            stderr: (data) => {
-                core.setFailed(data.toString());
+    return new Promise(async (resolve, reject) => {
+        const options = {
+            listeners: {
+                stdout: (data) => {
+                    core.info("Natspec smells output length: "+data.toString().length);
+                    core.info("Natspec smells findings amount: "+data.toString().match(/.sol:/g).length);
+                    resolve(data.toString().match(/.sol:/g).length);
+                },
+                stderr: (data) => {
+                    core.setFailed(data.toString());
+                    reject(data.toString());
+                }
             }
-        }
-    };
+        };
+    
+        exec.exec('npx natspec-smells', [], options);
+    })
+}
 
-    await exec.exec('npx natspec-smells');
-
-    return findingsAmount;
+async function generateCommentBody(commentHeaderPrefix, shaShort, findingsAmount) {
+    if (findingsAmount > 0) {
+        return `${commentHeaderPrefix} [<code>${shaShort}</code>](${github.context.payload.pull_request.number}/commits/${sha}) during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n> [!WARNING]  \n> Natspec smells has found **${findingsAmount} problems** in the code.`;
+    }
+    else{
+        return `${commentHeaderPrefix} [<code>${shaShort}</code>](${github.context.payload.pull_request.number}/commits/${sha}) during [${github.context.workflow} #${github.context.runNumber}](../actions/runs/${github.context.runId})\n> [!TIP]  \n> Natspec smells has not found any problems in the code ✅.`;
+    }
 }
 
 run();
