@@ -82,6 +82,8 @@ async function runNatspecSmells() {
         const options = {
             listeners: {
                 stdout: (data) => {
+                    core.info("Natspec smells output length: "+data.toString().length);
+                    core.info("Natspec smells findings amount: "+data.toString().match(/.sol:/g).length);
                     resolve(data.toString().match(/.sol:/g).length);
                 },
                 stderr: (data) => {
