@@ -9,7 +9,6 @@ Create a workflow `.yml` file in your `.github/workflows` directory. An [example
 ### Inputs
 For more information on these inputs, see the [Workflow syntax for GitHub Actions](https://docs.github.com/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepswith)
 
-- `natspec-smells-file`: The natspec-smells files to scan. For example, `natspec-smells-report.txt`
 - `github-token`: Set the `${{ secrets.GITHUB_TOKEN }}` token to have the action comment the natspec smells findings summary in the pull request. This token is provided by Actions, you do not need to create your own token. Optional. Default: ``
 - `working-directory`: The working directory containing the source files referenced in the LCOV files. Optional. Default: `./`
 - `update-comment`: Set to `true` to update the previous natspec smells comment if such exists. When set to `false`, a new comment is always created. Optional. Default: `false`
@@ -35,7 +34,6 @@ jobs:
     - name: Report natspec smells findings
       uses: Yashiru/natspec-smells-ci@v1
       with:
-        natspec-smells-file: natspec-smells-report.txt
         github-token: ${{ secrets.GITHUB_TOKEN }}
         working-directory: ./
         update-comment: true
